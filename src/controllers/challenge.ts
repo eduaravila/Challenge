@@ -8,6 +8,8 @@ import {
   ModifyChallenge
 } from "../schema/ChallengeSchema";
 import JwtAdmin from "../utils/jwtAdmin";
+import Jwt from "../utils/jwt";
+import jwtTicket from "../utils/jwtTicket";
 import { decrypt, encrypt } from "../utils/crypt";
 
 export const addChallenge = async (
@@ -197,6 +199,56 @@ export const modifyChallenge = async (
 
     return Promise.resolve(`${updatedChallenge._id} succesfully updated`);
   } catch (error) {
+    throw new ApolloError(error);
+  }
+};
+
+export const getChallengePoints = async (
+  currentChallengeToken: string,
+  ctx: any
+) => {
+  try {
+    let token = ctx.req.headers.token;
+    let localToken = await Jwt.validateToken(
+      token,
+      ctx.req.body.variables.publicKey
+    );
+    let tokenData: any = await Jwt.decrypt_data(localToken)();
+
+    let localTokenChallenge = await jwtTicket.validateToken(
+      currentChallengeToken
+    );
+    let decryptlocalTokenChallenge: any = await jwtTicket.decrypt_data(
+      localTokenChallenge
+    )();
+
+    let result = await challengeModel.findOne({
+      _id: decryptlocalTokenChallenge.Challenge
+    });
+
+    let descripted_result = {
+      ...result,
+      points: decrypt(result.points)
+    };
+
+    let ticketToken = new jwtTicket({
+      Challenge: decryptlocalTokenChallenge.Challenge,
+      userId: tokenData.userId,
+      rarity: result.rarity,
+      points: descripted_result.points,
+      created_at: decryptlocalTokenChallenge.created_at,
+      closed_at: decryptlocalTokenChallenge.closed_at
+    });
+    await ticketToken.create_token("1h");
+
+    return Promise.resolve({
+      msg: `${decryptlocalTokenChallenge.Challenge} succesfully calculated`,
+      code: "200",
+      token: ticketToken.token
+    });
+  } catch (error) {
+    console.log(error);
+
     throw new ApolloError(error);
   }
 };

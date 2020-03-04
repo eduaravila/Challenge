@@ -5,13 +5,15 @@ import {
   NewChallenge,
   SuccessResponse,
   findInput,
-  ModifyChallenge
+  ModifyChallenge,
+  SuccessResponseTicketSingle
 } from "../schema/ChallengeSchema";
 import {
   addChallenge,
   getChallenges,
   deleteChallenge,
-  modifyChallenge
+  modifyChallenge,
+  getChallengePoints
 } from "../controllers/challenge";
 
 @Resolver(of => Challenge)
@@ -60,5 +62,14 @@ export class ChallengeResolver {
       msg,
       code: "200"
     };
+  }
+
+  @Mutation(returns => SuccessResponseTicketSingle)
+  async GetChallengePoints(
+    @Arg("CurrentChallengeoToken", { nullable: true })
+    CurrentChallengeoToken: string,
+    @Ctx() ctx: any
+  ) {
+    return await getChallengePoints(CurrentChallengeoToken, ctx);
   }
 }

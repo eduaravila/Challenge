@@ -35,6 +35,30 @@ export class SuccessResponse {
   code?: string;
 }
 
+@ObjectType()
+export class SuccessResponseTicket {
+  @Field(type => [String])
+  msg?: [string];
+
+  @Field(type => String)
+  token?: string;
+
+  @Field(type => String)
+  code?: string;
+}
+
+@ObjectType()
+export class SuccessResponseTicketSingle {
+  @Field(type => String)
+  msg?: string;
+
+  @Field(type => String)
+  token?: string;
+
+  @Field(type => String)
+  code?: string;
+}
+
 @Directive("@extends")
 @Directive(`@key(fields: "_id")`)
 @ObjectType()
@@ -163,8 +187,8 @@ export class ModifyChallenge extends EditChallenge {
 @Directive(`@key(fields:"_id")`)
 @ObjectType()
 export class Challenge {
-  @Field(type => String, { nullable: false })
-  _id: string;
+  @Field(type => ID, { nullable: false })
+  _id: mongoose.Types.ObjectId;
 
   @Field(type => String, { nullable: true })
   title: string;
