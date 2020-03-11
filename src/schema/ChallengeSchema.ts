@@ -35,6 +35,27 @@ export class SuccessResponse {
   code?: string;
 }
 
+@InputType()
+export class ChallengeId {
+  @Field(type => ID)
+  _id?: mongoose.Types.ObjectId;
+}
+
+@InputType()
+export class RandomChallenge {
+  @Field(type => String)
+  currentChallenge?: string;
+
+  @Field(type => [ChallengeId])
+  completedChallenges?: [ChallengeId];
+
+  @Field(type => ID)
+  Arena?: mongoose.Types.ObjectId;
+
+  @Field(type => String, { nullable: true })
+  Last?: string;
+}
+
 @ObjectType()
 export class SuccessResponseTicket {
   @Field(type => [String])
@@ -68,6 +89,15 @@ export class Arena {
   _id: mongoose.Types.ObjectId;
 }
 
+@Directive("@extends")
+@Directive(`@key(fields: "_id")`)
+@ObjectType()
+export class Badge {
+  @Directive("@external")
+  @Field(type => ID)
+  _id: mongoose.Types.ObjectId;
+}
+
 enum rarityEmun {
   Normal = "normal",
   Epic = "epic",
@@ -90,14 +120,17 @@ registerEnumType(gendreEmun, {
 
 @ObjectType()
 export class BadgesObject {
-  @Field(type => ID)
-  type: mongoose.Types.ObjectId;
+  @Type(() => Badge)
+  @Field()
+  type: Badge;
 
-  @Field(type => ID)
-  zone: mongoose.Types.ObjectId;
+  @Type(() => Badge)
+  @Field()
+  zone: Badge;
 
-  @Field(type => ID)
-  rarity: mongoose.Types.ObjectId;
+  @Type(() => Badge)
+  @Field()
+  rarity: Badge;
 }
 
 @InputType()
@@ -251,7 +284,9 @@ export class findInput {
 export async function resolveChallengeReference(
   reference: Pick<Challenge, "_id">
 ): Promise<Challenge> {
-  let result = await challenge_model.findOne({ _id: reference._id });
+  let result = await challenge_model.findOne({ _id: reference._id }).lean();
   let descripted_result = { ...result, points: decrypt(result.points) };
+  console.log(descripted_result);
+
   return descripted_result;
 }

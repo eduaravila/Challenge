@@ -5,7 +5,8 @@ import challengeModel from "../models/challenge";
 import {
   NewChallenge,
   findInput,
-  ModifyChallenge
+  ModifyChallenge,
+  RandomChallenge
 } from "../schema/ChallengeSchema";
 import JwtAdmin from "../utils/jwtAdmin";
 import Jwt from "../utils/jwt";
@@ -246,6 +247,55 @@ export const getChallengePoints = async (
       code: "200",
       token: ticketToken.token
     });
+  } catch (error) {
+    console.log(error);
+
+    throw new ApolloError(error);
+  }
+};
+
+export const getRandomChallenge = async (
+  { Arena, completedChallenges, Last }: RandomChallenge,
+  ctx: any
+) => {
+  try {
+    let token = ctx.req.headers.token;
+    let localToken = await Jwt.validateToken(
+      token,
+      ctx.req.body.variables.publicKey
+    );
+    let tokenData: any = await Jwt.decrypt_data(localToken)();
+
+    // gets just challenges that you are not already completed and not gave you the las challenge recomended
+    let availableChallenges = await challengeModel
+      .find({
+        $and: [
+          {
+            arena: Arena
+          },
+          { _id: { $nin: [...completedChallenges.map(i => i._id)] } }
+        ]
+      })
+      .lean();
+
+    // ? last challenge recomended exist and the list is more than 1 just delete de last challenge from the posible list
+    if (Last && availableChallenges.length > 1) {
+      availableChallenges = [
+        ...availableChallenges.filter(i => i._id !== Last)
+      ];
+    }
+
+    const idx = Math.floor(Math.random() * availableChallenges.length);
+    let recomendedChallenge = availableChallenges[idx];
+
+    recomendedChallenge = {
+      ...recomendedChallenge,
+      points: decrypt(recomendedChallenge.points)
+    };
+
+    console.log(recomendedChallenge);
+
+    return Promise.resolve(recomendedChallenge);
   } catch (error) {
     console.log(error);
 

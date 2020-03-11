@@ -19,6 +19,12 @@ enum gendreEmun {
   Nobinary = "nobinary"
 }
 
+enum badgeTypeEnum {
+  Type = "type",
+  Ratiry = "rarity",
+  Zone = "zone"
+}
+
 export interface ChallengeModelType
   extends mongoose.Document,
     SoftDeleteDocument {
@@ -61,3 +67,16 @@ export interface ChallengeModelType
 
 export interface ChallengeModelStaticsType
   extends SoftDeleteModel<ChallengeModelType> {}
+
+export interface BadgeModelType extends mongoose.Document, SoftDeleteDocument {
+  type: badgeTypeEnum;
+  name: string;
+  image: string;
+  created_at: string;
+  updated_at: string;
+  created_by: mongoose.Types.ObjectId;
+  updated_by: mongoose.Types.ObjectId;
+}
+
+export interface BadgeModelStaticsType
+  extends SoftDeleteModel<BadgeModelType> {}

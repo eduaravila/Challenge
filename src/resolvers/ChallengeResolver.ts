@@ -6,14 +6,16 @@ import {
   SuccessResponse,
   findInput,
   ModifyChallenge,
-  SuccessResponseTicketSingle
+  SuccessResponseTicketSingle,
+  RandomChallenge
 } from "../schema/ChallengeSchema";
 import {
   addChallenge,
   getChallenges,
   deleteChallenge,
   modifyChallenge,
-  getChallengePoints
+  getChallengePoints,
+  getRandomChallenge
 } from "../controllers/challenge";
 
 @Resolver(of => Challenge)
@@ -36,6 +38,15 @@ export class ChallengeResolver {
   async challenges(@Arg("findInput", () => findInput) findInput: findInput) {
     let msg = await getChallenges(findInput);
     return [...msg];
+  }
+
+  @Query(returns => Challenge)
+  async GetChallenge(
+    @Arg("RandomChallenge", () => RandomChallenge)
+    RandomChallenge: RandomChallenge,
+    @Ctx() ctx: any
+  ) {
+    return await getRandomChallenge(RandomChallenge, ctx);
   }
 
   @Mutation(returns => SuccessResponse, {
