@@ -1,3 +1,7 @@
+//!!
+//!! Eduardo avila 2020 21
+//!!
+
 import "reflect-metadata";
 import express from "express";
 import { ApolloServer } from "apollo-server-express";
@@ -34,6 +38,7 @@ if (cluster.isWorker) {
       const server = new ApolloServer({
         schema: await buildFederatedSchema(
           {
+            validate: true,
             resolvers: [ChallengeResolver],
             orphanedTypes: [Arena, Challenge, Badge]
           },

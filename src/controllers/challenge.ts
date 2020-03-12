@@ -255,10 +255,13 @@ export const getChallengePoints = async (
 };
 
 export const getRandomChallenge = async (
-  { Arena, completedChallenges, Last }: RandomChallenge,
+  { Arena, completedChallenges, Last, currentChallenge }: RandomChallenge,
   ctx: any
 ) => {
   try {
+    if (currentChallenge) {
+      throw Error("We cant assign a new challenge, you are already in one 🕰");
+    }
     let token = ctx.req.headers.token;
     let localToken = await Jwt.validateToken(
       token,
@@ -267,21 +270,33 @@ export const getRandomChallenge = async (
     let tokenData: any = await Jwt.decrypt_data(localToken)();
 
     // gets just challenges that you are not already completed and not gave you the las challenge recomended
-    let availableChallenges = await challengeModel
-      .find({
-        $and: [
-          {
-            arena: Arena
-          },
-          { _id: { $nin: [...completedChallenges.map(i => i._id)] } }
-        ]
-      })
-      .lean();
+    let availableChallenges = completedChallenges
+      ? await challengeModel
+          .find({
+            $and: [
+              {
+                arena: Arena
+              },
+              { _id: { $nin: [...completedChallenges.map(i => i._id)] } }
+            ]
+          })
+          .lean()
+      : await challengeModel
+          .find({
+            $and: [
+              {
+                arena: Arena
+              }
+            ]
+          })
+          .lean();
+
+    console.log(availableChallenges.length, Last);
 
     // ? last challenge recomended exist and the list is more than 1 just delete de last challenge from the posible list
     if (Last && availableChallenges.length > 1) {
       availableChallenges = [
-        ...availableChallenges.filter(i => i._id !== Last)
+        ...availableChallenges.filter(i => i._id != Last)
       ];
     }
 

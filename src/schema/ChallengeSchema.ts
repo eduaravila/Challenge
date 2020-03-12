@@ -18,6 +18,8 @@ import {
 
 import { decrypt, encrypt } from "../utils/crypt";
 import challenge_model from "../models/challenge";
+import { IsUndefined } from "../utils/validators/challenge";
+import { Validate, Min, Max, MaxLength } from "class-validator";
 
 @SanitizerConstraint()
 export class toLowerCase implements SanitizerInterface {
@@ -37,16 +39,17 @@ export class SuccessResponse {
 
 @InputType()
 export class ChallengeId {
-  @Field(type => ID)
+  @Field(type => ID,{ nullable: true )
   _id?: mongoose.Types.ObjectId;
 }
 
 @InputType()
 export class RandomChallenge {
-  @Field(type => String)
-  currentChallenge?: string;
+  @Field(type => String, { nullable: true })
+  @MaxLength(0)
+  currentChallenge: string;
 
-  @Field(type => [ChallengeId])
+  @Field(type => [ChallengeId], { nullable: true })
   completedChallenges?: [ChallengeId];
 
   @Field(type => ID)
