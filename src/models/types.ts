@@ -43,7 +43,7 @@ export interface ChallengeModelType
   rarity: rarityEmun;
   description: [string];
   portrait: string;
-  arena: { _id: mongoose.Types.ObjectId };
+  arena: mongoose.Types.ObjectId;
   gendre: gendreEmun;
   minAge: number;
   location: {

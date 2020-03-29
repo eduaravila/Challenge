@@ -95,8 +95,7 @@ export const getChallenges = async ({
             .find({
               $or: [
                 { title: { $regex: ".*" + search + ".*" } },
-                { _id: { $regex: ".*" + search + ".*" } },
-                { arena: { $regex: ".*" + search + ".*" } }
+                { _id: { $regex: ".*" + search + ".*" } }
               ]
             })
             .skip(offset)
@@ -107,7 +106,7 @@ export const getChallenges = async ({
             .skip(offset)
             .limit(limit)
             .lean();
-    let descripted_result = result.map(i => ({
+    let descripted_result = result.map((i: any) => ({
       ...i,
       points: decrypt(i.points)
     }));
@@ -288,7 +287,7 @@ export const getRandomChallenge = async (
           .find({
             $and: [
               {
-                arena: Arena
+                arena: { $in: Arena }
               }
             ]
           })
@@ -309,7 +308,7 @@ export const getRandomChallenge = async (
 
     const idx = Math.floor(Math.random() * availableChallenges.length);
     let recomendedChallenge = availableChallenges[idx];
-      
+
     recomendedChallenge = {
       ...recomendedChallenge,
       points: decrypt(recomendedChallenge.points)
