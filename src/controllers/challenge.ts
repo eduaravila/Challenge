@@ -261,16 +261,20 @@ export const getRandomChallenge = async (
     if (currentChallenge) {
       throw Error("We cant assign a new challenge, you are already in one 🕰");
     }
+
     let token = ctx.req.headers.token;
     let localToken = await Jwt.validateToken(
       token,
       ctx.req.body.variables.publicKey
     );
     let tokenData: any = await Jwt.decrypt_data(localToken)();
-    completedChallenges.map(i => {
-      console.log("completedChallenges", i, i._id);
-    });
+
     console.log(Arena);
+    let lastChallenge = await challengeModel
+      .findOne({
+        _id: Last
+      })
+      .lean();
 
     // gets just challenges that you are not already completed and not gave you the las challenge recomended
     let availableChallenges = completedChallenges
@@ -294,27 +298,34 @@ export const getRandomChallenge = async (
           .lean();
 
     // ? last challenge recomended exist and the list is more than 1 just delete de last challenge from the posible list
-    if (Last && availableChallenges.length > 1) {
+    if (availableChallenges.length > 1 && !!completedChallenges) {
       availableChallenges = [
-        ...availableChallenges.filter(i => i._id != Last)
-      ].filter(i => !completedChallenges.find(e => e._id == i._id));
+        ...availableChallenges.filter(
+          i => !completedChallenges.find(e => e._id == i._id)
+        )
+      ];
+      if (availableChallenges.length > 1) {
+        availableChallenges = [
+          ...availableChallenges.filter(i => i._id != Last)
+        ];
+      }
     }
-    console.log(
-      ...availableChallenges
-        .filter(i => !completedChallenges.find(e => e._id == i._id))
-        .map(i => i._id),
-      completedChallenges
-    );
 
     const idx = Math.floor(Math.random() * availableChallenges.length);
-    let recomendedChallenge = availableChallenges[idx];
+    let recomendedChallenge =
+      availableChallenges.length > 1
+        ? availableChallenges[idx]
+        : availableChallenges[0];
 
-    recomendedChallenge = {
-      ...recomendedChallenge,
-      points: decrypt(recomendedChallenge.points)
-    };
+    if (availableChallenges.length > 0)
+      recomendedChallenge = {
+        ...recomendedChallenge,
+        points: decrypt(recomendedChallenge.points)
+      };
 
-    return Promise.resolve(recomendedChallenge);
+    return Promise.resolve(
+      recomendedChallenge ? recomendedChallenge : lastChallenge
+    );
   } catch (error) {
     console.log(error);
 
