@@ -35,15 +35,15 @@ export interface ChallengeModelType
   created_by: mongoose.Types.ObjectId;
   updated_by: mongoose.Types.ObjectId;
   badges: {
-    type: mongoose.Types.ObjectId;
-    zone: mongoose.Types.ObjectId;
-    rarity: mongoose.Types.ObjectId;
+    type: { _id: mongoose.Types.ObjectId };
+    zone: { _id: mongoose.Types.ObjectId };
+    rarity: { _id: mongoose.Types.ObjectId };
   };
   points: string;
   rarity: rarityEmun;
   description: [string];
   portrait: string;
-  arena: mongoose.Types.ObjectId;
+  arena: { _id: mongoose.Types.ObjectId };
   gendre: gendreEmun;
   minAge: number;
   location: {

@@ -278,7 +278,7 @@ export const getRandomChallenge = async (
           .find({
             $and: [
               {
-                arena: { $in: Arena }
+                arena: { $in: Arena.map(i => ({ _id: i })) }
               }
             ]
           })
@@ -287,7 +287,7 @@ export const getRandomChallenge = async (
           .find({
             $and: [
               {
-                arena: { $in: Arena }
+                arena: { $in: Arena.map(i => ({ _id: i })) }
               }
             ]
           })
