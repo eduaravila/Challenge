@@ -268,6 +268,10 @@ export const getRandomChallenge = async (
       ctx.req.body.variables.publicKey
     );
     let tokenData: any = await Jwt.decrypt_data(localToken)();
+    completedChallenges.map(i => {
+      console.log("completedChallenges", i, i._id);
+    });
+    console.log(Arena);
 
     // gets just challenges that you are not already completed and not gave you the las challenge recomended
     let availableChallenges = completedChallenges
@@ -275,9 +279,8 @@ export const getRandomChallenge = async (
           .find({
             $and: [
               {
-                arena: Arena
-              },
-              { _id: { $nin: [...completedChallenges.map(i => i._id)] } }
+                arena: { $in: Arena }
+              }
             ]
           })
           .lean()
@@ -291,24 +294,26 @@ export const getRandomChallenge = async (
           })
           .lean();
 
-    console.log(availableChallenges.length, Last);
-
     // ? last challenge recomended exist and the list is more than 1 just delete de last challenge from the posible list
     if (Last && availableChallenges.length > 1) {
       availableChallenges = [
         ...availableChallenges.filter(i => i._id != Last)
-      ];
+      ].filter(i => !completedChallenges.find(e => e._id == i._id));
     }
+    console.log(
+      ...availableChallenges
+        .filter(i => !completedChallenges.find(e => e._id == i._id))
+        .map(i => i._id),
+      completedChallenges
+    );
 
     const idx = Math.floor(Math.random() * availableChallenges.length);
     let recomendedChallenge = availableChallenges[idx];
-
+      
     recomendedChallenge = {
       ...recomendedChallenge,
       points: decrypt(recomendedChallenge.points)
     };
-
-    console.log(recomendedChallenge);
 
     return Promise.resolve(recomendedChallenge);
   } catch (error) {

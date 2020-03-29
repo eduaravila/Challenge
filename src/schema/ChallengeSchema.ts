@@ -52,8 +52,8 @@ export class RandomChallenge {
   @Field(type => [ChallengeId], { nullable: true })
   completedChallenges?: [ChallengeId];
 
-  @Field(type => ID)
-  Arena?: mongoose.Types.ObjectId;
+  @Field(type => [ID])
+  Arena?: [mongoose.Types.ObjectId];
 
   @Field(type => String, { nullable: true })
   Last?: string;
