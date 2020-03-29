@@ -39,7 +39,7 @@ export class SuccessResponse {
 
 @InputType()
 export class ChallengeId {
-  @Field(type => ID,{ nullable: true )
+  @Field(type => ID, { nullable: true })
   _id?: mongoose.Types.ObjectId;
 }
 
