@@ -49,7 +49,9 @@ if (cluster.isWorker) {
         context: req => req,
         formatError: err => {
           return err;
-        }
+        },
+        playground: true,
+        introspection: true
       });
       // The GraphQL endpoint
 
